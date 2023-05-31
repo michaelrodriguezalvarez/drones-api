@@ -11,9 +11,11 @@ using Drones.Medications.Dto;
 using Abp.Domain.Repositories;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
+using Abp.Authorization;
 
 namespace Drones.Medications
 {
+    [AbpAuthorize]
     public class MedicationAppService : AsyncCrudAppService<Medication, MedicationDto, long, PagedMedicationsResultRequestDto, MedicationDto, MedicationDto>, IMedicationAppService
     {
         public MedicationAppService(IRepository<Medication, long> repository) : base(repository)
