@@ -12,12 +12,9 @@ namespace Drones.Models
             DronesMedications = new HashSet<DroneMedication>();
         }
         public int? TenantId { get; set; }
-        [MaxLength(100)]
         public string SerialNumber { get; set; }
         public string Model { get; set; }
-        [Range(0, 500)]
         public decimal Weight { get; set; }
-        [Range(0, 100)]
         public int BatteryCapacity { get; set; }
         public string State { get; set; }
 
