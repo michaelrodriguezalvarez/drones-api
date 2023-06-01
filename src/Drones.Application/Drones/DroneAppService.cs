@@ -162,11 +162,9 @@ namespace Drones.Drones
                                          join m in _medicationRepository.GetAll() on dm.MedicationId equals m.Id
                                          where dm.DroneId == input.DroneId
                                          select (m)).WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x =>
-                        x.Name.ToLower().Contains(keyword) ||
-                        x.Weight.ToString().ToLower().Contains(keyword) ||
-                    x.Code.ToLower().Contains(keyword));
-
-               
+                                                    x.Name.ToLower().Contains(keyword) ||
+                                                    x.Weight.ToString().ToLower().Contains(keyword) ||
+                                                    x.Code.ToLower().Contains(keyword));               
 
                 var loadedMedicationItems = queryMedications.Skip(input.SkipCount).Take(input.MaxResultCount);
 
