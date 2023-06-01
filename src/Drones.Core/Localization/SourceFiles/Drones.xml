@@ -125,5 +125,14 @@
     <text name="CreateNewMedication">Create new medication</text>
     <text name="Fields">Fields</text>
     <text name="EditMedication">Edit medication</text>
+    <text name="DroneDeleteWarningMessage">Drone {0} will be deleted and unload the medications assigned.</text>   
+	<text name="Drones">Drones</text>
+	<text name="SerialNumber">Serial number</text>
+	<text name="Model">Model</text>
+	<text name="BatteryCapacity">Battery capacity</text>
+	<text name="State">State</text>
+	<text name="CreateNewDrone">Register new drone</text> 
+	<text name="EditDrone">Edit drone</text>
+  
   </texts>
 </localizationDictionary>
