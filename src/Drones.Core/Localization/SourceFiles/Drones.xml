@@ -133,6 +133,13 @@
 	<text name="State">State</text>
 	<text name="CreateNewDrone">Register new drone</text> 
 	<text name="EditDrone">Edit drone</text>
-  
+	<text name="MedicationItemsLoaded">Medication items loaded to drone</text>
+	<text name="LoadDrone">Load</text>
+	<text name="MedicationUnloadWarningMessage">Medication {0} will be unload from assigned drone.</text>
+	<text name="SuccessfullyUnloaded">Successfully unloaded.</text>
+	<text name="UnloadDrone">Unload</text>
+	<text name="Drone">Drone</text>
+	<text name="SelectToLoad">Select to load</text>
+	<text name="LoadToDrone">Load to drone {0}</text>
   </texts>
 </localizationDictionary>

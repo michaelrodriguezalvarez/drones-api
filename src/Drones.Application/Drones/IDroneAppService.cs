@@ -13,5 +13,6 @@ namespace Drones.Drones
         Task<PagedResultDto<MedicationDto>> CheckLoaded(CheckDronesRequestDto input);
         Task<PagedResultDto<DroneDto>> CheckAvailables();
         Task<int> CheckBatteryLevel(CheckDronesRequestDto input);
+        Task<bool> Unload(UnloadDroneDto input);
     }
 }

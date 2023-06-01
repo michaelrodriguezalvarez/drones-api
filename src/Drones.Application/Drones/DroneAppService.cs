@@ -3,6 +3,7 @@ using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
+using Abp.EntityFrameworkCore.Repositories;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.Timing;
@@ -13,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 namespace Drones.Drones
@@ -106,32 +108,29 @@ namespace Drones.Drones
                 await CurrentUnitOfWork.SaveChangesAsync();
                 if (drone.BatteryCapacity >= 25)
                 {
-                    var totalWeightLoaded = (from dm in _droneMedicationRepository.GetAll()
-                                            join m in _medicationRepository.GetAll() on dm.MedicationId equals m.Id
-                                            where dm.DroneId == drone.Id
-                                            select (m.Weight)).Sum();
-
                     decimal totalWeigthToLoad = 0;
-                    
-                    input.MedicationItems.ForEach(async (medicationId) =>
+
+                    foreach (var medicationId in input.MedicationItems)
                     {
                         var item = await _medicationRepository.GetAsync(medicationId);
                         totalWeigthToLoad += item.Weight;
-                    });
+                    }
 
-                    if (drone.Weight <= totalWeightLoaded + totalWeigthToLoad)
+                    if (drone.Weight <= totalWeigthToLoad)
                     {
                         drone.State = "LOADED";
                         await CurrentUnitOfWork.SaveChangesAsync();
                         return false;
                     }
 
+                    await _droneMedicationRepository.DeleteAsync(x => x.DroneId == input.DroneId);
+
                     foreach (var medicationId in input.MedicationItems)
                     {
                         var medication = await _medicationRepository.GetAsync(medicationId);
                         _ = await _droneMedicationRepository.InsertAsync(new DroneMedication()
                         {
-                            TenantId = null,
+                            TenantId = AbpSession.TenantId,
                             DroneId = drone.Id,
                             MedicationId = medication.Id,
                             Drone = drone,
@@ -156,14 +155,22 @@ namespace Drones.Drones
         [UnitOfWork]
         public async Task<PagedResultDto<MedicationDto>> CheckLoaded(CheckDronesRequestDto input)
         {
-            // TODO
             using (UnitOfWorkManager.Current.SetTenantId(AbpSession.TenantId))
             {
-                var loadedMedicationItems = from dm in _droneMedicationRepository.GetAll()
+                string keyword = input?.Keyword?.ToLower();
+                var queryMedications = (from dm in _droneMedicationRepository.GetAll()
                                          join m in _medicationRepository.GetAll() on dm.MedicationId equals m.Id
                                          where dm.DroneId == input.DroneId
-                                         select (m);
-                return new PagedResultDto<MedicationDto>(loadedMedicationItems.Count(), ObjectMapper.Map<List<MedicationDto>>(loadedMedicationItems));
+                                         select (m)).WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x =>
+                        x.Name.ToLower().Contains(keyword) ||
+                        x.Weight.ToString().ToLower().Contains(keyword) ||
+                    x.Code.ToLower().Contains(keyword));
+
+               
+
+                var loadedMedicationItems = queryMedications.Skip(input.SkipCount).Take(input.MaxResultCount);
+
+                return new PagedResultDto<MedicationDto>(queryMedications.Count(), ObjectMapper.Map<List<MedicationDto>>(loadedMedicationItems));
             }
         }
 
@@ -199,6 +206,26 @@ namespace Drones.Drones
             {
                 var drone = await Repository.GetAsync(input.DroneId);
                 return drone.BatteryCapacity;
+            }
+        }
+
+        [UnitOfWork]
+        public async Task<bool> Unload(UnloadDroneDto input)
+        {
+            using (UnitOfWorkManager.Current.SetTenantId(AbpSession.TenantId))
+            {
+                var droneMedication = await _droneMedicationRepository.FirstOrDefaultAsync(x =>
+                                    x.MedicationId == input.MedicationId && x.DroneId == input.DroneId
+                                    );
+                if (droneMedication is null)
+                {
+                    return false;
+                }
+                else
+                {
+                    await _droneMedicationRepository.DeleteAsync(droneMedication);
+                    return true;
+                }
             }
         }
     }
