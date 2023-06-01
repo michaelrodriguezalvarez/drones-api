@@ -117,5 +117,13 @@
     <text name="ResetPasswordStepOneInfo">1. Enter your administrator password</text>
     <text name="ResetPasswordStepTwoInfo">2. Copy this random password so you can send it to the user</text>
     <text name="UsersActivation">Users activation</text>
+    <text name="MedicationDeleteWarningMessage">Medication {0} will be deleted and unload from assigned drone.</text>
+    <text name="Medications">Medications</text>
+    <text name="Weight">Weight</text>
+    <text name="Code">Code</text>
+    <text name="Image">Image</text>
+    <text name="CreateNewMedication">Create new medication</text>
+    <text name="Fields">Fields</text>
+    <text name="EditMedication">Edit medication</text>
   </texts>
 </localizationDictionary>
