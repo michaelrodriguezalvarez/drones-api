@@ -12,6 +12,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Abp.HangFire.AspNetCore" Version="8.2.0" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.19.12" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Drones.Core\Drones.Core.csproj" />
   </ItemGroup>
 </Project>

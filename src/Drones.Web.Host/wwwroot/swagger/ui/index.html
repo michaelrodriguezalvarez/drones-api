@@ -25,6 +25,13 @@
             margin: 0;
             background: #fafafa;
         }
+        #jobs {
+            cursor: pointer;
+        }
+
+        #logs {
+            cursor: pointer;
+        }
     </style>
     %(HeadContent)
 </head>
@@ -137,6 +144,56 @@
                     }
                 }
             ];
+
+            configObject.onComplete = function (swaggerApi, swaggerUi) {
+                var logs = document.getElementById('logs');
+                var jobs = document.getElementById('jobs');
+                var logsContainer = document.getElementById('logs-container');
+                // token
+                var authToken = abp.auth.getToken();
+                logsContainer.hidden = (authToken == '' || authToken == null);
+                // logs link
+                logs.onclick = function (evt) {
+                    if (!authToken) {
+                        return false;
+                    }
+
+                    var xhr = new XMLHttpRequest();
+
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === XMLHttpRequest.DONE) {
+                            var element = document.createElement('a');
+                            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(xhr.response));
+                            element.setAttribute('download', "logs.txt");
+
+                            element.style.display = 'none';
+                            document.body.appendChild(element);
+
+                            element.click();
+
+                            document.body.removeChild(element);
+                        }
+                    };
+
+                    xhr.open('GET', '/api/TokenAuth/GetLogs', false);
+                    xhr.setRequestHeader(abp.auth.tokenHeaderName, 'Bearer ' + authToken);
+                    xhr.setRequestHeader('Content-type', 'application/json');
+                    xhr.send();
+                }
+                // hangfire link
+                jobs.onclick = function (evt) {
+                    if (!authToken) {
+                        return false;
+                    }
+
+                    var baseUrl = window.location.origin;
+                    var url = baseUrl + '/hangfire';
+                    console.log(url);
+                    window.location.href = url;
+                    return false;
+                }
+            }
+
             // Build a system
             SwaggerUIBundle(configObject);
         }

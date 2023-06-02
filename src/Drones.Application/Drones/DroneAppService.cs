@@ -3,19 +3,17 @@ using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
-using Abp.EntityFrameworkCore.Repositories;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.Timing;
 using Drones.Drones.Dto;
 using Drones.Medications.Dto;
 using Drones.Models;
+using Hangfire;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 namespace Drones.Drones
@@ -177,7 +175,6 @@ namespace Drones.Drones
         [UnitOfWork]
         public async Task<PagedResultDto<DroneDto>> CheckAvailables(CheckAvailablesRequestDto input)
         {
-            // TODO
             using (UnitOfWorkManager.Current.SetTenantId(AbpSession.TenantId))
             {
                 string keyword = input?.Keyword?.ToLower();
@@ -251,6 +248,62 @@ namespace Drones.Drones
                             join m in _medicationRepository.GetAll() on dm.MedicationId equals m.Id
                             where dm.DroneId == input.DroneId
                             select (m.Weight)).Sum();
+            }
+        }
+        [UnitOfWork]
+        public void CheckDronesBatteryLevelsActivate(bool active)
+        {
+            using (UnitOfWorkManager.Current.SetTenantId(AbpSession.TenantId))
+            {
+                string jobId = "check-drones-battery-levels";
+                RecurringJob.RemoveIfExists(jobId);
+
+                if (active)
+                {
+                    CheckDronesBatteryLevelsRecurringJobs(jobId);
+                }
+            }         
+        }
+        [RemoteService(false)]
+        public void CheckDronesBatteryLevelsRecurringJobs(string jobId)
+        {
+            RecurringJob.AddOrUpdate<DroneAppService>(
+                jobId,
+                t => t.CheckDronesBatteryLevels(),
+                Cron.MinuteInterval(5));
+        }
+
+        [UnitOfWork]
+        public void CheckDronesBatteryLevels()
+        {
+            using (var uow = UnitOfWorkManager.Begin())
+            {
+                var drones = Repository.GetAll();
+
+                foreach (var drone in drones)
+                {
+                    if (drone.BatteryCapacity <= 25)
+                    {
+                        string previousStatus = drone.State;
+                        drone.State = drone.State switch
+                        {
+                            // NOTE: if the battery level it is low not continue loading
+                            "LOADING" => "LOADED",
+                            // NOTE: if the battery level it is low not continue DELIVERING
+                            "DELIVERING" => "RETURNING",
+                            // NOTE: if the battery level it is low and have DELIVERED status, RETURNING inmediatly
+                            "DELIVERED" => "RETURNING",
+                            _ => drone.State
+                        };
+                        string newStatus = drone.State;
+                        if (!previousStatus.Equals(newStatus))
+                        {
+                            Repository.Update(drone);                            
+                            Abp.Logging.LogHelper.Logger.Info($"Drone \"{drone.SerialNumber}\" status changed from {previousStatus} to {newStatus} by low battery level.");
+                        }
+                    }
+                }
+                uow.Complete();
             }
         }
     }

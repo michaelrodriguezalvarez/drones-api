@@ -15,5 +15,7 @@ namespace Drones.Drones
         Task<int> CheckBatteryLevel(CheckDronesRequestDto input);
         Task<bool> Unload(UnloadDroneDto input);
         decimal CheckLoadedWeight(CheckLoadedWeightDroneDto input);
+        void CheckDronesBatteryLevels();
+        void CheckDronesBatteryLevelsActivate(bool active);
     }
 }
