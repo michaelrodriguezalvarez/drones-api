@@ -117,5 +117,36 @@
     <text name="ResetPasswordStepOneInfo">1. Enter your administrator password</text>
     <text name="ResetPasswordStepTwoInfo">2. Copy this random password so you can send it to the user</text>
     <text name="UsersActivation">Users activation</text>
+    <text name="MedicationDeleteWarningMessage">Medication {0} will be deleted and unload from assigned drone.</text>
+    <text name="Medications">Medications</text>
+    <text name="Weight">Weight</text>
+    <text name="Code">Code</text>
+    <text name="Image">Image</text>
+    <text name="CreateNewMedication">Create new medication</text>
+    <text name="Fields">Fields</text>
+    <text name="EditMedication">Edit medication</text>
+    <text name="DroneDeleteWarningMessage">Drone {0} will be deleted and unload the medications assigned.</text>   
+	<text name="Drones">Drones</text>
+	<text name="SerialNumber">Serial number</text>
+	<text name="Model">Model</text>
+	<text name="BatteryCapacity">Battery capacity</text>
+	<text name="State">State</text>
+	<text name="CreateNewDrone">Register new drone</text> 
+	<text name="EditDrone">Edit drone</text>
+	<text name="MedicationItemsLoaded">Medication items loaded to drone</text>
+	<text name="LoadDrone">Load</text>
+	<text name="MedicationUnloadWarningMessage">Medication {0} will be unload from assigned drone.</text>
+	<text name="SuccessfullyUnloaded">Successfully unloaded.</text>
+	<text name="UnloadDrone">Unload</text>
+	<text name="Drone">Drone</text>
+	<text name="SelectToLoad">Select to load</text>
+	<text name="LoadToDrone">Load to drone {0}</text>
+    <text name="AvailablesDrone">Availables drones</text>
+	<text name="Battery">Battery</text>
+	<text name="BatteryLevel">Battery level</text>
+	<text name="BatteryLevelResult">The battery level is {0} %</text>
+	<text name="DroneLoadedWeight">The actual loaded weigth of the drone is {0}</text>
+	<text name="Jobs">Jobs</text>
+	<text name="SelectActivateJobs">Select for activate the jobs</text>
   </texts>
 </localizationDictionary>

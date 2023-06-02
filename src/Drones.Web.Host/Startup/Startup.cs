@@ -21,6 +21,8 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 using System.IO;
 using Abp.Timing;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 namespace Drones.Web.Host.Startup
 {
@@ -77,6 +79,15 @@ namespace Drones.Web.Host.Startup
                 )
             );
 
+            //
+            // Hangfire
+            //
+            services.AddHangfire(config =>
+            {
+                config.UsePostgreSqlStorage(_appConfiguration.GetConnectionString("Default"));
+            });
+            services.AddHangfireServer();
+
             // Swagger - Enable this line and the related lines in Configure method to enable swagger UI
             ConfigureSwagger(services);
 
@@ -126,6 +137,21 @@ namespace Drones.Web.Host.Startup
                     .GetManifestResourceStream("Drones.Web.Host.wwwroot.swagger.ui.index.html");
                 options.DisplayRequestDuration(); // Controls the display of the request duration (in milliseconds) for "Try it out" requests.  
             }); // URL: /swagger
+
+            //
+            // Add hangfire Dashboard
+            //
+            var useDashboard = bool.Parse(_appConfiguration["App:UseDashboardForJobs"] ?? "true");
+            if (useDashboard)
+            {
+                app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                {
+                    // IsReadOnlyFunc = (DashboardContext context) => true,
+                    Authorization = new[] { new AppDashboardAuthorizationFilter() },
+                    IgnoreAntiforgeryToken = true,
+                    DashboardTitle = "Drones Jobs"
+                });
+            }
         }
         
         private void ConfigureSwagger(IServiceCollection services)
@@ -136,7 +162,7 @@ namespace Drones.Web.Host.Startup
                 {
                     Version = _apiVersion,
                     Title = "Drones API",
-                    Description = "Drones",
+                    Description = "Drones: " + "<span id='logs-container'><a id='logs'>Logs</a><br>Background Jobs: <a id='jobs'>Dashboard</a></span>",
                     // uncomment if needed TermsOfService = new Uri("https://example.com/terms"),
                     Contact = new OpenApiContact
                     {
