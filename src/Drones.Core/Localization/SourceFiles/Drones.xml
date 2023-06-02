@@ -148,5 +148,7 @@
 	<text name="DroneLoadedWeight">The actual loaded weigth of the drone is {0}</text>
 	<text name="Jobs">Jobs</text>
 	<text name="SelectActivateJobs">Select for activate the jobs</text>
+	<text name="EditImage">Edit image</text>
+	<text name="ImageOfMedication">Image of medication {0}</text>
   </texts>
 </localizationDictionary>
