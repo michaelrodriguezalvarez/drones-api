@@ -241,5 +241,17 @@ namespace Drones.Drones
                 }
             }
         }
+
+        [UnitOfWork]
+        public decimal CheckLoadedWeight(CheckLoadedWeightDroneDto input)
+        {
+            using (UnitOfWorkManager.Current.SetTenantId(AbpSession.TenantId))
+            {
+                  return (from dm in _droneMedicationRepository.GetAll()
+                            join m in _medicationRepository.GetAll() on dm.MedicationId equals m.Id
+                            where dm.DroneId == input.DroneId
+                            select (m.Weight)).Sum();
+            }
+        }
     }
 }

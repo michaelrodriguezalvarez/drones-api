@@ -145,6 +145,7 @@
 	<text name="Battery">Battery</text>
 	<text name="BatteryLevel">Battery level</text>
 	<text name="BatteryLevelResult">The battery level is {0} %</text>
+	<text name="DroneLoadedWeight">The actual loaded weigth of the drone is {0}</text>
 	  
   </texts>
 </localizationDictionary>
