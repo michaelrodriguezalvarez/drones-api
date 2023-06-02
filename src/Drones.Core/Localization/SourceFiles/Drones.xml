@@ -142,5 +142,9 @@
 	<text name="SelectToLoad">Select to load</text>
 	<text name="LoadToDrone">Load to drone {0}</text>
     <text name="AvailablesDrone">Availables drones</text>
+	<text name="Battery">Battery</text>
+	<text name="BatteryLevel">Battery level</text>
+	<text name="BatteryLevelResult">The battery level is {0} %</text>
+	  
   </texts>
 </localizationDictionary>
