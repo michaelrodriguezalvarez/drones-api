@@ -12,6 +12,7 @@ using Drones.Medications.Dto;
 using Drones.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -116,7 +117,7 @@ namespace Drones.Drones
                         totalWeigthToLoad += item.Weight;
                     }
 
-                    if (drone.Weight <= totalWeigthToLoad)
+                    if (drone.Weight < totalWeigthToLoad)
                     {
                         drone.State = "LOADED";
                         await CurrentUnitOfWork.SaveChangesAsync();
@@ -174,14 +175,15 @@ namespace Drones.Drones
 
         // NOTE: checking available drones for loading
         [UnitOfWork]
-        public async Task<PagedResultDto<DroneDto>> CheckAvailables()
+        public async Task<PagedResultDto<DroneDto>> CheckAvailables(CheckAvailablesRequestDto input)
         {
             // TODO
             using (UnitOfWorkManager.Current.SetTenantId(AbpSession.TenantId))
             {
+                string keyword = input?.Keyword?.ToLower();
                 List<Drone> availableDrones = new List<Drone>();
                 var drones = await Repository.GetAllListAsync();
-                drones.ForEach((drone) =>
+                foreach (var drone in drones)
                 {
                     var totalWeightLoaded = (from dm in _droneMedicationRepository.GetAll()
                                              join m in _medicationRepository.GetAll() on dm.MedicationId equals m.Id
@@ -189,10 +191,23 @@ namespace Drones.Drones
                                              select (m.Weight)).Sum();
                     if (drone.Weight > totalWeightLoaded)
                     {
-                        availableDrones.Add(drone);
+                        if(drone.BatteryCapacity >= 25 && (drone.State.Equals("IDLE") || drone.State.Equals("LOADED")))
+                        {
+                            availableDrones.Add(drone);
+                        }                       
                     }
-                });
-                return new PagedResultDto<DroneDto>(availableDrones.Count(), ObjectMapper.Map<List<DroneDto>>(availableDrones));
+                }        
+                var queryAvailableDrones = availableDrones.AsQueryable()
+                                                    .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x =>
+                                                    x.SerialNumber.ToLower().Contains(keyword) ||
+                                                    x.Model.ToLower().Contains(keyword) ||
+                                                    x.Weight.ToString().ToLower().Contains(keyword) ||
+                                                    x.BatteryCapacity.ToString().ToLower().Contains(keyword) ||
+                                                    x.State.ToLower().Contains(keyword));
+                queryAvailableDrones = queryAvailableDrones.OrderBy(x => x.SerialNumber);
+                var availableDronesPaged = queryAvailableDrones.Skip(input.SkipCount).Take(input.MaxResultCount);
+
+                return new PagedResultDto<DroneDto>(queryAvailableDrones.Count(), ObjectMapper.Map<List<DroneDto>>(availableDronesPaged));
             }
         }
 

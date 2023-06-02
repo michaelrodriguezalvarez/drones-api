@@ -141,5 +141,6 @@
 	<text name="Drone">Drone</text>
 	<text name="SelectToLoad">Select to load</text>
 	<text name="LoadToDrone">Load to drone {0}</text>
+    <text name="AvailablesDrone">Availables drones</text>
   </texts>
 </localizationDictionary>
